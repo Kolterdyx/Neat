@@ -2,7 +2,6 @@ package me.kolterdyx.neat.genome;
 
 import com.google.gson.annotations.Expose;
 import me.kolterdyx.neat.utils.InnovationRegistry;
-import org.json.JSONPropertyName;
 
 public class Connection extends Gene {
     @Expose
@@ -26,7 +25,6 @@ public class Connection extends Gene {
     public void enable() {
         enabled = true;
     }
-
 
     public void disable() {
         enabled = false;

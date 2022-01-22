@@ -1,7 +1,6 @@
 package me.kolterdyx.neat.genome;
 
 import com.google.gson.annotations.Expose;
-import org.json.JSONPropertyName;
 
 public class Gene {
     public static final int NODE=0;
