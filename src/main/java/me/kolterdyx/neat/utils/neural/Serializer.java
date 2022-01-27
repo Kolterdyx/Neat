@@ -1,4 +1,4 @@
-package me.kolterdyx.neat.utils;
+package me.kolterdyx.neat.utils.neural;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

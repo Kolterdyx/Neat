@@ -4,9 +4,9 @@ import com.google.gson.annotations.Expose;
 import me.kolterdyx.neat.genome.Connection;
 import me.kolterdyx.neat.genome.Gene;
 import me.kolterdyx.neat.genome.Node;
-import me.kolterdyx.neat.utils.GeneKey;
-import me.kolterdyx.neat.utils.InnovationRegistry;
-import me.kolterdyx.neat.utils.Serializer;
+import me.kolterdyx.neat.utils.neural.GeneKey;
+import me.kolterdyx.neat.utils.neural.InnovationRegistry;
+import me.kolterdyx.neat.utils.neural.Serializer;
 import java.util.HashMap;
 
 public class Network {

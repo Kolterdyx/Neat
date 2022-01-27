@@ -1,4 +1,4 @@
-package me.kolterdyx.neat.utils;
+package me.kolterdyx.neat.utils.neural;
 
 public class GeneKey {
     private int in;

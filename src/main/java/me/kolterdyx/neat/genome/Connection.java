@@ -1,7 +1,7 @@
 package me.kolterdyx.neat.genome;
 
 import com.google.gson.annotations.Expose;
-import me.kolterdyx.neat.utils.InnovationRegistry;
+import me.kolterdyx.neat.utils.neural.InnovationRegistry;
 
 public class Connection extends Gene {
     @Expose
