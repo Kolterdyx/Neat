@@ -10,13 +10,13 @@ import java.util.Random;
 
 public class LayeredNetwork {
     private SimpleMatrix exposedLayer;
-    private ArrayList<SimpleMatrix> hiddenLayers;
+    private final ArrayList<SimpleMatrix> hiddenLayers;
 
-    private int inputs;
-    private int outputs;
+    private final int inputs;
+    private final int outputs;
 
-    private Random rng;
-    private Configuration config;
+    private final Random rng;
+    private final Configuration config;
 
     public LayeredNetwork(int inputs, int outputs, Configuration config, Random rng){
         hiddenLayers = new ArrayList<>();
@@ -147,11 +147,13 @@ public class LayeredNetwork {
 
     public SimpleMatrix feed(SimpleMatrix X){
 
-        SimpleMatrix result = ActivationFunction.calculateMatrix(ActivationFunction.fromName(config.getString("default-activation")), X.mult(exposedLayer));
+        ActivationFunction f = ActivationFunction.fromName(config.getString("default-activation"));
+
+        SimpleMatrix result = f.calculateMatrix(X.mult(exposedLayer));
 
         if (hiddenLayers.size()>0){
             for (SimpleMatrix matrix : hiddenLayers){
-                result = ActivationFunction.calculateMatrix(ActivationFunction.fromName(config.getString("default-activation")), result.mult(matrix));
+                result = f.calculateMatrix(result.mult(matrix));
             }
         }
         return result;

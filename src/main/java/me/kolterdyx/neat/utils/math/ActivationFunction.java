@@ -20,9 +20,8 @@ public enum ActivationFunction {
         return MAP.get(name);
     }
 
-    public double calculate(ActivationFunction f, double x){
-
-        switch (f){
+    public double calculate(double x){
+        switch (this){
             case SIGMOID: return 1/(1+Math.pow(Math.E, -x));
             case RELU: return x > 0 ? x : 0;
             case STEP: return x > 0 ? 1 : 0;
@@ -31,10 +30,10 @@ public enum ActivationFunction {
         return 0d;
     }
 
-    public static SimpleMatrix calculateMatrix(ActivationFunction f, SimpleMatrix matrix){
+    public SimpleMatrix calculateMatrix(SimpleMatrix matrix){
         SimpleMatrix result = new SimpleMatrix(matrix.numRows(), matrix.numCols());
         for (int i=0;i<matrix.getNumElements();i++){
-            result.set(i, f.calculate(f, matrix.get(i)));
+            result.set(i, calculate(matrix.get(i)));
         }
         return result;
     }
