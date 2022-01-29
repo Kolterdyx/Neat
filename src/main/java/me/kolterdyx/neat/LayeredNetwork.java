@@ -25,7 +25,10 @@ public class LayeredNetwork {
         this.outputs = outputs;
         this.config = config;
         SimpleMatrix initialMatrix = new SimpleMatrix(inputs, outputs);
-        exposedLayer = randomizeMatrix(initialMatrix);
+        exposedLayer = randomizeMatrixOnes(initialMatrix);
+        if (config.getBoolean("network.fill-with-default-value")){
+            exposedLayer.fill(config.getDouble("network.default-weight-value"));
+        }
     }
 
     public LayeredNetwork(int inputs, int outputs, Configuration config){
@@ -34,7 +37,15 @@ public class LayeredNetwork {
 
     private SimpleMatrix randomizeMatrix(SimpleMatrix matrix){
         for (int i = 0; i < matrix.getNumElements(); i++) {
-            matrix.set(i, rng.nextDouble()*config.getInt("weight-range"));
+            matrix.set(i, rng.nextDouble()*config.getDouble("network.weight-range"));
+        }
+        return matrix.copy();
+    }
+
+
+    private SimpleMatrix randomizeMatrixOnes(SimpleMatrix matrix){
+        for (int i = 0; i < matrix.getNumElements(); i++) {
+            matrix.set(i, rng.nextBoolean() ? -1 : 1);
         }
         return matrix.copy();
     }
@@ -54,8 +65,15 @@ public class LayeredNetwork {
         }
     }
 
+    public ArrayList<SimpleMatrix> getLayers(){
+        return hiddenLayers;
+    }
+
     public void addNode(int index){
-        if (hiddenLayers.size()==0) return;
+        if (hiddenLayers.size()==0) {
+            addLayer();
+            return;
+        }
 
         double[][] array;
         double[][] newArray;
@@ -135,7 +153,7 @@ public class LayeredNetwork {
         }
     }
 
-    public double[][] matrixToArray(SimpleMatrix matrix) {
+    private double[][] matrixToArray(SimpleMatrix matrix) {
         double[][] array = new double[matrix.numRows()][matrix.numCols()];
         for (int r = 0; r < matrix.numRows(); r++) {
             for (int c = 0; c < matrix.numCols(); c++) {
@@ -147,13 +165,17 @@ public class LayeredNetwork {
 
     public SimpleMatrix feed(SimpleMatrix X){
 
-        ActivationFunction f = ActivationFunction.fromName(config.getString("default-activation"));
+        ActivationFunction f = ActivationFunction.fromName(config.getString("network.default-activation"));
+        ActivationFunction of = ActivationFunction.fromName(config.getString("network.output-activation"));
 
         SimpleMatrix result = f.calculateMatrix(X.mult(exposedLayer));
 
         if (hiddenLayers.size()>0){
-            for (SimpleMatrix matrix : hiddenLayers){
-                result = f.calculateMatrix(result.mult(matrix));
+            for (int i=0; i< hiddenLayers.size();i++){
+                SimpleMatrix matrix = hiddenLayers.get(i);
+                if (i< hiddenLayers.size()-1) result = f.calculateMatrix(result.mult(matrix));
+                else result = of.calculateMatrix(result.mult(matrix));
+
             }
         }
         return result;
@@ -168,7 +190,7 @@ public class LayeredNetwork {
             matrix = hiddenLayers.get(layer).copy();
         }
         int node = rng.nextInt(matrix.getNumElements());
-        double strength = config.getDouble("weight-mutation-strength");
+        double strength = config.getDouble("network.weight-range");
         matrix.set(node, matrix.get(node)+rng.nextDouble(strength*2f-strength));
         if (layer==-1){
             exposedLayer = matrix;

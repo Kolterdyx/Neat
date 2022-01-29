@@ -10,9 +10,11 @@ import java.util.stream.Stream;
 public enum ActivationFunction {
 
     NONE,
+    LINEAR,
     SIGMOID,
     RELU,
-    STEP;
+    STEP,
+    TANH;
 
     private static final Map<String, ActivationFunction> MAP = Stream.of(ActivationFunction.values()).collect(Collectors.toMap(Enum::name, Function.identity()));
 
@@ -26,6 +28,8 @@ public enum ActivationFunction {
             case RELU: return x > 0 ? x : 0;
             case STEP: return x > 0 ? 1 : 0;
             case NONE: return x;
+            case LINEAR: return x;
+            case TANH: return (Math.pow(Math.E, x)-Math.pow(Math.E, -x))/(Math.pow(Math.E, x)+Math.pow(Math.E, -x));
         }
         return 0d;
     }
