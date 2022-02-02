@@ -41,19 +41,30 @@ public class Configuration {
         return result;
     }
 
+    public Number getNumber(String path){
+        return (Number) getData(path);
+    }
 
     public int getInt(String path){
-        return (int)getData(path);
+        Number n = getNumber(path);
+        if (n instanceof Double){
+            return Integer.parseInt(""+(int)n);
+        }
+        return (int)getNumber(path);
     }
 
     public float getFloat(String path){
-        return (float)(int)getData(path);
+        return (float)getDouble(path);
     }
     public double getDouble(String path){
-        return (double)(int)getData(path);
+        Number n = getNumber(path);
+        if (n instanceof Integer){
+            return Double.parseDouble(""+(int)n);
+        }
+        return (double)getNumber(path);
     }
     public long getLong(String path){
-        return (long)(int)getData(path);
+        return (long)getNumber(path);
     }
     public boolean getBoolean(String path){
         return (boolean)getData(path);

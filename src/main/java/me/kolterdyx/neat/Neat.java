@@ -84,7 +84,6 @@ public class Neat {
                 }
             }
 
-            System.out.println(idx);
 
             switch (idx){
                 case 0 -> {
