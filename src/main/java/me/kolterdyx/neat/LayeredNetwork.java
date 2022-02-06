@@ -18,21 +18,22 @@ public class LayeredNetwork {
     private final Random rng;
     private final Configuration config;
 
-    public LayeredNetwork(int inputs, int outputs, Configuration config, Random rng){
+
+    public LayeredNetwork(int inputs, int outputs, Configuration config){
         hiddenLayers = new ArrayList<>();
-        this.rng = rng;
+        this.rng = new Random();
+        if (config.getBoolean("network.random.use-seed")){
+            rng.setSeed(config.getInt("network.random.seed"));
+        }
         this.inputs = inputs;
         this.outputs = outputs;
         this.config = config;
         SimpleMatrix initialMatrix = new SimpleMatrix(inputs, outputs);
-        exposedLayer = randomizeMatrixOnes(initialMatrix);
+        exposedLayer = randomizeMatrix(initialMatrix);
         if (config.getBoolean("network.fill-with-default-value")){
             exposedLayer.fill(config.getDouble("network.default-weight-value"));
         }
-    }
 
-    public LayeredNetwork(int inputs, int outputs, Configuration config){
-        this(inputs, outputs, config, new Random());
     }
 
     private SimpleMatrix randomizeMatrix(SimpleMatrix matrix){

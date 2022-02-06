@@ -1,0 +1,29 @@
+network:
+  inputs: 2
+  outputs: 3
+  default-activation: "TANH"
+  output-activation: "SIGMOID"
+
+  fill-with-default-value: false
+  default-weight-value: 1
+
+  layered: false
+  random:
+    use-seed: true
+    seed: 0
+  weight-range: 1
+  mutation:
+    chance: 1
+    amount: 1
+    weights:
+      # Universal:
+      weight: 5
+      add-node: 2
+      remove-node: 1
+
+      # Layered only:
+      add-layer: 1
+
+      # Neat only:
+      add-connection: 1
+      remove-connection: 1

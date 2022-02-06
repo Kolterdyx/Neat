@@ -33,4 +33,16 @@ public class Connection extends Gene {
     public boolean enabled() {
         return enabled;
     }
+
+    public int getOutputNode() {
+        return outputNode;
+    }
+
+    public int getInputNode() {
+        return inputNode;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
 }

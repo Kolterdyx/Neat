@@ -25,8 +25,14 @@ public class Neat {
             random.setSeed(config.getInt("network.random.seed"));
         }
 
+        int inputs = config.getInt("network.inputs");
+        int outputs = config.getInt("network.outputs");
+
         if (layered){
-            lnetwork = new LayeredNetwork(config.getInt("network.inputs"), config.getInt("network.outputs"), config);
+            lnetwork = new LayeredNetwork(inputs, outputs, config);
+        } else {
+            nnetwork = new NeatNetwork(inputs, outputs, config);
+            nnetwork.addRandomNode();
         }
     }
 
@@ -69,16 +75,14 @@ public class Neat {
             int[] loptions = new int[]{0, 1, 2, 3};
             int[] noptions = new int[]{0, 1, 2, 4, 5};
 
-
-
             int idx = 0;
             if (layered) {
-                for (double r = Math.random() * lTotalWeight; idx < loptions.length - 1; ++idx) {
+                for (double r = random.nextDouble() * lTotalWeight; idx < loptions.length - 1; ++idx) {
                     r -= lweights[idx];
                     if (r <= 0.0) break;
                 }
             } else {
-                for (double r = Math.random() * nTotalWeight; idx < noptions.length - 1; ++idx) {
+                for (double r = random.nextDouble() * nTotalWeight; idx < noptions.length - 1; ++idx) {
                     r -= nweights[idx];
                     if (r <= 0.0) break;
                 }

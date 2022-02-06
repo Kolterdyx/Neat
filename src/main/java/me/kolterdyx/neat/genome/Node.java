@@ -16,10 +16,28 @@ public class Node extends Gene {
     private double outputValue;
     private boolean processed = false;
 
+    private int numberOfInputs=0;
+
     public Node(int type, int innovation){
         GENE_TYPE = Gene.NODE;
         NODE_TYPE = type;
         this.innovation = innovation;
+    }
+
+    public void addNewInput(){
+        numberOfInputs++;
+    }
+
+    public void removeInput(){
+        numberOfInputs--;
+    }
+
+    public void addInputValue(double value){
+        inputValues.add(value);
+    }
+
+    public boolean allInputsCalculated(){
+        return inputValues.size() == numberOfInputs;
     }
 
     public void calculate(){
@@ -36,5 +54,18 @@ public class Node extends Gene {
 
     public int getNodeType() {
         return NODE_TYPE;
+    }
+
+    public void reset() {
+        processed = false;
+        inputValues.clear();
+    }
+
+    public double getOutput() {
+        return outputValue;
+    }
+
+    public boolean hasBeenProcessed() {
+        return processed;
     }
 }
