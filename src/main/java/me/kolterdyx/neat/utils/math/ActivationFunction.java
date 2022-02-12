@@ -14,9 +14,9 @@ public enum ActivationFunction {
     SIGMOID,
     RELU,
     STEP,
-    TANH;
+    TANH, SOFT_TANH;
 
-    private static final Map<String, ActivationFunction> MAP = Stream.of(ActivationFunction.values()).collect(Collectors.toMap(Enum::name, Function.identity()));
+    private static Map<String, ActivationFunction> MAP = Stream.of(ActivationFunction.values()).collect(Collectors.toMap(Enum::name, Function.identity()));
 
     public static ActivationFunction fromName(String name){
         return MAP.get(name);
@@ -27,9 +27,11 @@ public enum ActivationFunction {
             case SIGMOID: return 1/(1+Math.pow(Math.E, -x));
             case RELU: return x > 0 ? x : 0;
             case STEP: return x > 0 ? 1 : 0;
-            case NONE: return x;
-            case LINEAR: return x;
+            case NONE:
+            case LINEAR:
+                return x;
             case TANH: return (Math.pow(Math.E, x)-Math.pow(Math.E, -x))/(Math.pow(Math.E, x)+Math.pow(Math.E, -x));
+            case SOFT_TANH: return TANH.calculate(x/5);
         }
         return 0d;
     }

@@ -1,29 +1,30 @@
 network:
   inputs: 2
   outputs: 3
-  default-activation: "TANH"
-  output-activation: "SIGMOID"
+
+  input-activation: "TANH"
+  hidden-activation: "RELU"
+  output-activation: "TANH"
+
+  graph:
+    display-disabled-links: true
+    display-link-info: false
+    display-node-info: false
 
   fill-with-default-value: false
   default-weight-value: 1
 
-  layered: false
   random:
     use-seed: true
     seed: 0
-  weight-range: 1
+  weight-range: 2
+  bias-range: 10
   mutation:
     chance: 1
     amount: 1
     weights:
-      # Universal:
       weight: 5
       add-node: 2
       remove-node: 1
-
-      # Layered only:
-      add-layer: 1
-
-      # Neat only:
-      add-connection: 1
-      remove-connection: 1
+      add-connection: 2
+      remove-connection: 0.5

@@ -1,5 +1,6 @@
 package me.kolterdyx.neat.genome;
 
+
 import com.google.gson.annotations.Expose;
 
 public class Gene {

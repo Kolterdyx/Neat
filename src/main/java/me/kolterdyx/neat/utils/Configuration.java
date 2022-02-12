@@ -12,7 +12,9 @@ import java.util.Scanner;
 
 public class Configuration {
 
+    @Expose
     private String filePath;
+    @Expose
     private Map<String, Object> data;
     public Configuration(String filepath){
         try {
@@ -48,7 +50,7 @@ public class Configuration {
     public int getInt(String path){
         Number n = getNumber(path);
         if (n instanceof Double){
-            return Integer.parseInt(""+(int)n);
+            return Integer.parseInt(""+(int)(double)n);
         }
         return (int)getNumber(path);
     }
