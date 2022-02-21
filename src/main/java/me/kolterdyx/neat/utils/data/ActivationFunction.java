@@ -1,4 +1,4 @@
-package me.kolterdyx.neat.utils.math;
+package me.kolterdyx.neat.utils.data;
 
 import org.ejml.simple.SimpleMatrix;
 

@@ -1,4 +1,4 @@
-package me.kolterdyx.neat.utils;
+package me.kolterdyx.neat.utils.data;
 
 import com.google.gson.*;
 import com.google.gson.annotations.Expose;

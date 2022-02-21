@@ -1,14 +1,18 @@
 package me.kolterdyx.neat;
 
 import com.google.gson.annotations.Expose;
-import me.kolterdyx.neat.utils.Configuration;
+import me.kolterdyx.neat.utils.data.Configuration;
 import me.kolterdyx.neat.utils.neural.Serializer;
 import org.ejml.simple.SimpleMatrix;
 import org.graphstream.graph.Graph;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Neat {
     private transient Random random;
@@ -33,45 +37,49 @@ public class Neat {
         network = new Network(inputs, outputs, config);
     }
 
+    public static Neat deserialize(String data) {
+        return Serializer.deserialize(data);
+    }
+
     public SimpleMatrix feed(SimpleMatrix X){
         return network.feed(X);
     }
 
 
-    public void tryMutation(){
+    public boolean tryMutation(){
         if (random.nextDouble() < config.getDouble("network.mutation.chance")){
-            double totalWeight = 0f;
+            final double[] totalWeight = {0f};
 
             double[] weights = new double[]{
                     config.getDouble("network.mutation.weights.weight"),
+                    config.getDouble("network.mutation.weights.bias"),
                     config.getDouble("network.mutation.weights.add-node"),
                     config.getDouble("network.mutation.weights.remove-node"),
                     config.getDouble("network.mutation.weights.add-connection"),
-                    config.getDouble("network.mutation.weights.remove-connection")
+                    config.getDouble("network.mutation.weights.remove-connection"),
             };
 
-            totalWeight += weights[0];
-            totalWeight += weights[1];
-            totalWeight += weights[2];
-            totalWeight += weights[3];
-            totalWeight += weights[4];
+            Arrays.stream(weights).forEach(value -> totalWeight[0]+=value);
 
             Runnable[] options = new Runnable[]{
                     network::mutateWeight,
+                    network::mutateBias,
                     network::addRandomNode,
                     network::removeRandomNode,
                     network::addRandomConnection,
-                    network::removeRandomConnection
+                    network::removeRandomConnection,
             };
 
             int choice = 0;
-            for (double r = random.nextDouble() * totalWeight; choice < options.length - 1; ++choice) {
+            for (double r = random.nextDouble() * totalWeight[0]; choice < options.length - 1; ++choice) {
                 r -= weights[choice];
                 if (r <= 0.0) break;
             }
 
             options[choice].run();
+            return true;
         }
+        return false;
     }
 
     public void plotGraph() {
@@ -101,12 +109,41 @@ public class Neat {
             random.setSeed(config.getInt("network.random.seed"));
         }
 
-        network.createGraph();
         network.setConfig(config);
         network.setRandom(random);
+        network.createGraph();
     }
 
     public Graph getGraph(){
         return network.getGraph();
     }
+
+    @Override
+    public boolean equals(Object o){
+        if (o instanceof Neat net){
+            return toString().equals(net.toString());
+        }
+        return false;
+    }
+
+    public String serialize() {
+        return Serializer.serialize(this);
+    }
+
+    public void exportToFile(String filename) throws IOException {
+        FileWriter file = new FileWriter(filename);
+        file.write(this.serialize());
+        file.close();
+    }
+
+    public static Neat importFromFile(String filename) throws FileNotFoundException {
+        File file = new File(filename);
+        Scanner scanner = new Scanner(file);
+        String data = "";
+        while (scanner.hasNextLine()){
+            data += scanner.nextLine().replace("  ", "");
+        }
+        return deserialize(data);
+    }
+
 }

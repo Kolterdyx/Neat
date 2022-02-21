@@ -1,10 +1,9 @@
 package me.kolterdyx.neat.genome;
 
 import com.google.gson.annotations.Expose;
-import me.kolterdyx.neat.utils.math.ActivationFunction;
+import me.kolterdyx.neat.utils.data.ActivationFunction;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Random;
 
 public class Node extends Gene {
@@ -41,7 +40,7 @@ public class Node extends Gene {
         NODE_TYPE = type;
         this.innovation = innovation;
         this.activationFunction = activationFunction;
-        this.bias = Double.parseDouble(String.format("%.5f", (random.nextDouble()-.5f)*2).replace(',', '.'))*biasRange;
+        this.bias = Double.parseDouble(String.format("%.5f", (random.nextDouble()-.5f)*2*biasRange).replace(',', '.'));
     }
 
     public void addNewInput(){
@@ -75,7 +74,7 @@ public class Node extends Gene {
             value += n;
         }
         outputValue = activationFunction.calculate(value+bias);
-//        System.out.println(this+" "+inputValues+" "+value+" "+incomingConnections);
+        processed = true;
     }
 
 
@@ -86,6 +85,14 @@ public class Node extends Gene {
     public void reset() {
         processed = false;
         inputValues.clear();
+    }
+
+    public void setBias(double value){
+        this.bias = value;
+    }
+
+    public double getBias(){
+        return bias;
     }
 
     public void setNumberOfInputs(int n){
@@ -102,7 +109,7 @@ public class Node extends Gene {
 
     @Override
     public String toString() {
-        return "{"+innovation+", "+NODE_TYPES[NODE_TYPE]+", "+numberOfInputs+", "+outputValue+"}";
+        return "{"+innovation+", "+NODE_TYPES[NODE_TYPE]+", "+numberOfInputs+", "+bias+"}";
     }
 
     public void setOutput(double value) {
@@ -112,5 +119,9 @@ public class Node extends Gene {
 
     public ArrayList<Double> getInputValues() {
         return inputValues;
+    }
+
+    public int getNumberOfInputs() {
+        return numberOfInputs;
     }
 }

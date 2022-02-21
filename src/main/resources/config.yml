@@ -1,21 +1,28 @@
 network:
-  inputs: 2
+  inputs: 1
   outputs: 3
 
-  input-activation: "TANH"
+  input-activation: "NONE"
   hidden-activation: "RELU"
-  output-activation: "TANH"
+  output-activation: "RELU"
 
   graph:
-    display-disabled-links: true
-    display-link-info: false
-    display-node-info: false
+
 
   fill-with-default-value: false
   default-weight-value: 1
 
+  while-true-timeout: 10000
+
+  debug:
+    graph:
+      display-disabled-links: true
+      display-link-info: false
+      display-node-info: false
+      stylesheet: "graph.css"
+
   random:
-    use-seed: true
+    use-seed: false
     seed: 0
   weight-range: 2
   bias-range: 10

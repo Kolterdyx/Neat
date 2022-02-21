@@ -1,23 +1,24 @@
 package me.kolterdyx.neat;
 
 import com.google.gson.annotations.Expose;
+import jdk.jshell.spi.ExecutionControl;
 import me.kolterdyx.neat.genome.Connection;
 import me.kolterdyx.neat.genome.Gene;
 import me.kolterdyx.neat.genome.Node;
-import me.kolterdyx.neat.utils.Configuration;
+import me.kolterdyx.neat.utils.NotImplementedException;
+import me.kolterdyx.neat.utils.data.Configuration;
 import me.kolterdyx.neat.utils.Experimental;
-import me.kolterdyx.neat.utils.graph.MouseListener;
-import me.kolterdyx.neat.utils.math.ActivationFunction;
+import me.kolterdyx.neat.utils.data.ActivationFunction;
 import me.kolterdyx.neat.utils.neural.GeneKey;
 import me.kolterdyx.neat.utils.neural.InnovationRegistry;
-import org.bytedeco.libfreenect._freenect_device;
 import org.ejml.simple.SimpleMatrix;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Network {
@@ -40,51 +41,15 @@ public class Network {
     private int[] inputNodeIDs;
     @Expose
     private int[] outputNodeIDs;
-    private String graphStyle = """
-                node {
-                    text-size: 12px;
-                    text-color: white;
-                    text-alignment: center;
-                    shape: freeplane;
-                    size-mode: fit;
-                }
-                node.input {
-                    fill-color: blue;
-                }
-                node.output {
-                    fill-color: red;
-                }
-                node.middle {
-                    fill-color: gray;
-                }
-                
-                graph {
-                    fill-color: #0f0f0f;
-                }
-                
-                edge {
-                    fill-color: #909090;
-                    shape: freeplane;
-                    text-size: 12px;
-                    text-color: white;
-                    text-alignment: center;
-                }
-                edge.positive {
-                    fill-color: #228a2e;
-                }
-                edge.negative {
-                    fill-color: #821d16;
-                }
-                edge.disabled {
-                    fill-color: rgba(0, 0, 0, 0);
-                }
-                """;
+    private String graphStyle = "";
 
     public Network(int inputs, int outputs, Configuration config){
 
         this.inputs = inputs;
         this.outputs = outputs;
         this.config = config;
+
+
 
         random = new Random();
         if (config.getBoolean("network.random.use-seed")) {
@@ -119,12 +84,13 @@ public class Network {
 
 
     public SimpleMatrix feed(SimpleMatrix data){
+        if (data==null) return null;
         // Reset all nodes
         for (Node node : nodes.values()){
             node.reset();
         }
 
-        for (int i=0; i <inputs; i++){
+        for (int i=0; i<inputs; i++){
             double value = data.get(i);
             Node node = nodes.get(inputNodeIDs[i]);
             node.addInputValue(value);
@@ -147,32 +113,37 @@ public class Network {
     }
 
     private boolean recurrent(GeneKey con){
-        int i = con.getIn();
-        int o = con.getOut();
+        int inputNodeInn = con.getIn();
+        int outputNodeInn = con.getOut();
 
-        if (i==o) return true;
-        else if (nodes.get(i).getNodeType() == Node.INPUT || nodes.get(o).getNodeType() == Node.OUTPUT) return false;
+        if (inputNodeInn==outputNodeInn) return true;
+        else if (nodes.get(inputNodeInn).getNodeType() == Node.INPUT || nodes.get(outputNodeInn).getNodeType() == Node.OUTPUT) return false;
 
-        ArrayList<int[]> conList = new ArrayList<>();
+        ArrayList<int[]> connectionList = new ArrayList<>();
 
         for (Connection c : connections.values()){
-            conList.add(new int[]{c.getInputNode(), c.getOutputNode()});
+            connectionList.add(new int[]{c.getInputNode(), c.getOutputNode()});
         }
 
         ArrayList<Integer> visited = new ArrayList<>();
-        visited.add(o);
-
+        visited.add(outputNodeInn);
+        int timeout=0;
         while (true){
+            timeout++;
+            if (timeout>=config.getInt("network.while-true-timeout")) {
+                System.out.println("Recurrent check timed out. Returning true");
+                return true;
+            }
             int n=0;
-            for (int[] c : conList){
-                int a = c[0], b = c[1];
+            for (int[] c : connectionList){
+                int a = c[0];
+                int b = c[1];
                 if (visited.contains(a) && !visited.contains(b)){
-                    if (b == i) return true;
+                    if (b == inputNodeInn) return true;
                     visited.add(b);
                     n++;
                 }
             }
-
             if (n == 0) return false;
         }
     }
@@ -193,6 +164,11 @@ public class Network {
             if (con.enabled()) node.addNewInput();
         }
 
+        if (node.getNumberOfInputs()==0){
+            node.calculate();
+            return node.getOutput();
+        }
+
         for (int conInn : node.getIncomingConnections()){
             Connection con = connections.get(conInn);
             if (con.enabled()) {
@@ -200,10 +176,8 @@ public class Network {
                     double value = calculateNode(nodes.get(con.getInputNode())) * con.getWeight();
                     node.addInputValue(value);
                 } else {
-                    node.addInputValue(nodes.get(con.getInputNode()).getOutput());
+                    node.addInputValue(nodes.get(con.getInputNode()).getOutput() * con.getWeight());
                 }
-            } else {
-                node.addInputValue(0);
             }
         }
         node.calculate();
@@ -279,6 +253,16 @@ public class Network {
     }
 
     public void mutateWeight() {
+        if (connections.size()==0) return;
+        Connection con = (Connection) connections.values().toArray()[random.nextInt(connections.size())];
+        double weightLimit = config.getDouble("network.weight-range");
+        con.setWeight(con.getWeight()+random.nextDouble(weightLimit*2)-weightLimit);
+    }
+
+    public void mutateBias(){
+        Node node = (Node) nodes.values().toArray()[random.nextInt(nodes.size())];
+        double biasLimit = config.getDouble("network.bias-range");
+        node.setBias(node.getBias()+random.nextDouble(biasLimit*2)-biasLimit);
     }
 
     public void addRandomNode() {
@@ -286,14 +270,27 @@ public class Network {
             addRandomConnection();
         }
 
-        Connection conToSplit = (Connection) connections.values().toArray()[random.nextInt(connections.size())];
+        Connection connectionToSplit = (Connection) connections.values().toArray()[random.nextInt(connections.size())];
 
-        while (!conToSplit.enabled()) conToSplit = (Connection) connections.values().toArray()[random.nextInt(connections.size())];
-        addNode(conToSplit.getInputNode(), conToSplit.getOutputNode());
+        int timeout=0;
+        while (!connectionToSplit.enabled()) {
+            timeout++;
+            if (timeout>config.getInt("network.while-true-timeout")){
+                return;
+            }
+            connectionToSplit = (Connection) connections.values().toArray()[random.nextInt(connections.size())];
+        }
+        addNode(connectionToSplit.getInputNode(), connectionToSplit.getOutputNode());
 
     }
 
+    public void removeNode(int node) {
+        throw new NotImplementedException();
+    }
+
     public void removeRandomNode() {
+        Node node = (Node) nodes.values().toArray()[random.nextInt(nodes.size())];
+        removeNode(node.getInnovation());
     }
 
     public void addRandomConnection() {
@@ -309,7 +306,12 @@ public class Network {
             if (random.nextBoolean()){
                 // hidden as inNode
                 int choice = -1;
+                int t=0;
                 while (choice == -1 || nodes.get(choice).getNodeType() != Node.HIDDEN){
+                    t++;
+                    if (t>=10000) {
+                        break;
+                    }
                     choice = ((Node) nodes.values().toArray()[random.nextInt(nodes.size())]).getInnovation();
                 }
                 inNode = choice;
@@ -322,7 +324,12 @@ public class Network {
             if (random.nextBoolean()){
                 // hidden as outNode
                 int choice = -1;
+                int t=0;
                 while (choice == -1 || nodes.get(choice).getNodeType() != Node.HIDDEN || choice == inNode){
+                    t++;
+                    if (t>=10000) {
+                        break;
+                    }
                     choice = ((Node) nodes.values().toArray()[random.nextInt(nodes.size())]).getInnovation();
                 }
                 outNode = choice;
@@ -353,7 +360,7 @@ public class Network {
 
         if (viewer == null) {
             viewer = graph.display();
-            viewer.getDefaultView().setSize(1280, 720);
+//            viewer.getDefaultView().setSize(1280, 720);
         }
 
         for (Connection con : connections.values()){
@@ -379,9 +386,10 @@ public class Network {
             if (!con.enabled()){
                 e.setAttribute("ui.class", "disabled");
             }
-            if (con.enabled() && config.getBoolean("network.graph.display-link-info")) e.setAttribute("ui.label", ""+con);
-            if (config.getBoolean("network.graph.display-node-info")) graph.getNode(inName).setAttribute("ui.label", ""+nodes.get(in));
-            if (config.getBoolean("network.graph.display-node-info")) graph.getNode(outName).setAttribute("ui.label", ""+nodes.get(out));
+            if (con.enabled() && config.getBoolean("network.debug.graph.display-link-info")) e.setAttribute("ui.label", ""+con);
+            if (config.getBoolean("network.debug.graph.display-node-info")) graph.getNode(inName).setAttribute("ui" +
+                    ".label", ""+nodes.get(in));
+            if (config.getBoolean("network.debug.graph.display-node-info")) graph.getNode(outName).setAttribute("ui.label", ""+nodes.get(out));
             if (Arrays.stream(inputNodeIDs).anyMatch(Integer.valueOf(in)::equals)){
                 graph.getNode(inName).setAttribute("ui.class", "input");
             }else {
@@ -410,16 +418,31 @@ public class Network {
 
     @Override
     public String toString() {
-        return ""+nodes+"\n"+connections;
+        return "\n -|"+nodes+"\n -|"+connections+"\n";
     }
 
     void createGraph() {
+
+        // Try to find and load stylesheet
+
+        File path = new File(config.getString("network.debug.graph.stylesheet"));
+        graphStyle="";
+        try {
+            Scanner scanner = new Scanner(path);
+            while (scanner.hasNextLine()){
+                String line = scanner.nextLine();
+                graphStyle = graphStyle + line +"\n";
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        // Create graph
         graph = new SingleGraph("Network");
         graph.setStrict(false);
 
         graph.setAutoCreate(true);
         System.setProperty("org.graphstream.ui", "swing");
-//        System.setProperty("org.graphstream.ui", "javafx");
         graph.setAttribute("ui.stylesheet", graphStyle);
     }
 

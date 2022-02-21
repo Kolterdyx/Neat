@@ -20,7 +20,7 @@ public class Connection extends Gene {
         this.innovation = InnovationRegistry.getConnection(inputNode, outputNode);
         this.inputNode = inputNode;
         this.outputNode = outputNode;
-        this.weight = Double.parseDouble(String.format("%.5f", (random.nextDouble()-.5f)*2).replace(',', '.'))*weightLimit;
+        this.weight = Double.parseDouble(String.format("%.5f", (random.nextDouble()-.5f)*2*weightLimit).replace(',', '.'));
         enable();
     }
 
@@ -51,5 +51,9 @@ public class Connection extends Gene {
     @Override
     public String toString() {
         return "{"+innovation+", "+getInputNode()+" -> "+getOutputNode()+", "+enabled+", "+weight+"}";
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
     }
 }
