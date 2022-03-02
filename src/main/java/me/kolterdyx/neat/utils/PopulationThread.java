@@ -1,6 +1,6 @@
 package me.kolterdyx.neat.utils;
 
-import me.kolterdyx.neat.Neat;
+import me.kolterdyx.neat.Network;
 import me.kolterdyx.neat.utils.data.Configuration;
 import org.apache.commons.math3.util.Pair;
 import org.ejml.simple.SimpleMatrix;
@@ -13,7 +13,7 @@ import static me.kolterdyx.neat.utils.Signal.*;
 
 public class PopulationThread {
 
-    private volatile HashMap<Long, Neat> population;
+    private volatile HashMap<Long, Network> population;
     private volatile HashMap<Long, SimpleMatrix> results;
     private volatile HashMap<Long, SimpleMatrix> oldResults;
     private volatile ArrayList<Long> idList;
@@ -150,20 +150,20 @@ public class PopulationThread {
 
     public long addNetwork(long parentId){
         long childId = idCounter++;
-        storeNetwork(childId, parentId, new Neat(config));
+        storeNetwork(childId, parentId, new Network(config));
         return childId;
     }
 
     public long addChildNetwork(long parentId){
         long childId = idCounter++;
-        Neat parent = population.get(parentId);
-        Neat child = parent.copy();
+        Network parent = population.get(parentId);
+        Network child = parent.copy();
         child.tryMutation();
         storeNetwork(childId, parentId, child);
         return childId;
     }
 
-    private void storeNetwork(long id, long parentId, Neat network){
+    private void storeNetwork(long id, long parentId, Network network){
         population.put(id, network);
         idList.add(id);
         familyTree.put(id, parentId);
@@ -190,7 +190,7 @@ public class PopulationThread {
     }
 
 
-    public HashMap<Long, Neat> getPopulation() {
+    public HashMap<Long, Network> getPopulation() {
         return population;
     }
 

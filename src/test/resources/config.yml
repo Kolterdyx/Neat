@@ -6,9 +6,6 @@ network:
   hidden-activation: "NONE"
   output-activation: "NONE"
 
-  graph:
-
-
   fill-with-default-value: false
   default-weight-value: 1
 
