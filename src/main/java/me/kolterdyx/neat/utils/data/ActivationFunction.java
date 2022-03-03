@@ -1,7 +1,5 @@
 package me.kolterdyx.neat.utils.data;
 
-import org.ejml.simple.SimpleMatrix;
-
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -36,11 +34,11 @@ public enum ActivationFunction {
         return 0d;
     }
 
-    public SimpleMatrix calculateMatrix(SimpleMatrix matrix){
-        SimpleMatrix result = new SimpleMatrix(matrix.numRows(), matrix.numCols());
-        for (int i=0;i<matrix.getNumElements();i++){
-            result.set(i, calculate(matrix.get(i)));
-        }
-        return result;
-    }
+//    public SimpleMatrix calculateMatrix(SimpleMatrix matrix){
+//        SimpleMatrix result = new SimpleMatrix(matrix.numRows(), matrix.numCols());
+//        for (int i=0;i<matrix.getNumElements();i++){
+//            result.set(i, calculate(matrix.get(i)));
+//        }
+//        return result;
+//    }
 }

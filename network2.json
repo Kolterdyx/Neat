@@ -1,0 +1,220 @@
+{
+  "config": {
+    "filePath": "/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/config.yml",
+    "data": {
+      "network": {
+        "inputs": 3,
+        "outputs": 2,
+        "input-activation": "NONE",
+        "hidden-activation": "NONE",
+        "output-activation": "NONE",
+        "fill-with-default-value": false,
+        "default-weight-value": 1,
+        "while-true-timeout": 10000,
+        "debug": {
+          "graph": {
+            "display-disabled-links": true,
+            "display-link-info": false,
+            "display-node-info": false,
+            "stylesheet": "graph.css"
+          }
+        },
+        "random": {
+          "use-seed": true,
+          "seed": 0
+        },
+        "weight-range": 2,
+        "bias-range": 10,
+        "mutation": {
+          "chance": 1,
+          "amount": 1,
+          "weights": {
+            "weight": 3,
+            "add-node": 2,
+            "remove-node": 1,
+            "add-connection": 4,
+            "remove-connection": 1,
+            "bias": 3
+          }
+        }
+      }
+    }
+  },
+  "genome": {
+    "nodes": {
+      "48": {
+        "NODE_TYPE": 0,
+        "inputValues": [],
+        "incomingConnections": [],
+        "outputValue": 0.0,
+        "processed": false,
+        "activationFunction": "NONE",
+        "numberOfInputs": 0,
+        "bias": 10.04561932341359,
+        "GENE_TYPE": 0,
+        "innovation": 48
+      },
+      "49": {
+        "NODE_TYPE": 0,
+        "inputValues": [],
+        "incomingConnections": [],
+        "outputValue": 0.0,
+        "processed": false,
+        "activationFunction": "NONE",
+        "numberOfInputs": 0,
+        "bias": -5.18927,
+        "GENE_TYPE": 0,
+        "innovation": 49
+      },
+      "50": {
+        "NODE_TYPE": 0,
+        "inputValues": [],
+        "incomingConnections": [],
+        "outputValue": 0.0,
+        "processed": false,
+        "activationFunction": "NONE",
+        "numberOfInputs": 0,
+        "bias": 1.907368221028836,
+        "GENE_TYPE": 0,
+        "innovation": 50
+      },
+      "51": {
+        "NODE_TYPE": 1,
+        "inputValues": [],
+        "incomingConnections": [
+          61
+        ],
+        "outputValue": 0.0,
+        "processed": false,
+        "activationFunction": "NONE",
+        "numberOfInputs": 1,
+        "bias": 1.00874,
+        "GENE_TYPE": 0,
+        "innovation": 51
+      },
+      "52": {
+        "NODE_TYPE": 1,
+        "inputValues": [],
+        "incomingConnections": [
+          53,
+          56,
+          62
+        ],
+        "outputValue": 0.0,
+        "processed": false,
+        "activationFunction": "NONE",
+        "numberOfInputs": 2,
+        "bias": 1.95091,
+        "GENE_TYPE": 0,
+        "innovation": 52
+      },
+      "54": {
+        "NODE_TYPE": 2,
+        "inputValues": [],
+        "incomingConnections": [
+          55,
+          57,
+          60
+        ],
+        "outputValue": 0.0,
+        "processed": false,
+        "activationFunction": "NONE",
+        "numberOfInputs": 2,
+        "bias": 8.82498,
+        "GENE_TYPE": 0,
+        "innovation": 54
+      },
+      "58": {
+        "NODE_TYPE": 2,
+        "inputValues": [],
+        "incomingConnections": [
+          59
+        ],
+        "outputValue": 0.0,
+        "processed": false,
+        "activationFunction": "NONE",
+        "numberOfInputs": 2,
+        "bias": 4.66304,
+        "GENE_TYPE": 0,
+        "innovation": 58
+      }
+    },
+    "connections": {
+      "53": {
+        "weight": 1.93128,
+        "inputNode": 49,
+        "outputNode": 52,
+        "enabled": false,
+        "GENE_TYPE": 1,
+        "innovation": 53
+      },
+      "55": {
+        "weight": -0.90018,
+        "inputNode": 49,
+        "outputNode": 54,
+        "enabled": false,
+        "GENE_TYPE": 1,
+        "innovation": 55
+      },
+      "56": {
+        "weight": -0.6149300345458957,
+        "inputNode": 54,
+        "outputNode": 52,
+        "enabled": false,
+        "GENE_TYPE": 1,
+        "innovation": 56
+      },
+      "57": {
+        "weight": 1.47071,
+        "inputNode": 50,
+        "outputNode": 54,
+        "enabled": false,
+        "GENE_TYPE": 1,
+        "innovation": 57
+      },
+      "59": {
+        "weight": 2.175968668169163,
+        "inputNode": 50,
+        "outputNode": 58,
+        "enabled": true,
+        "GENE_TYPE": 1,
+        "innovation": 59
+      },
+      "60": {
+        "weight": 1.35556,
+        "inputNode": 58,
+        "outputNode": 54,
+        "enabled": true,
+        "GENE_TYPE": 1,
+        "innovation": 60
+      },
+      "61": {
+        "weight": -1.5491595603638284,
+        "inputNode": 54,
+        "outputNode": 51,
+        "enabled": true,
+        "GENE_TYPE": 1,
+        "innovation": 61
+      },
+      "62": {
+        "weight": 1.07208,
+        "inputNode": 58,
+        "outputNode": 52,
+        "enabled": true,
+        "GENE_TYPE": 1,
+        "innovation": 62
+      }
+    },
+    "inputs": 3,
+    "outputs": 2,
+    "inputNodeIDs": [
+      48,
+      49,
+      50
+    ],
+    "outputNodeIDs": [
+      51,
+      52
+    ]
+  }
+}

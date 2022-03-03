@@ -1,13 +1,10 @@
 network:
-  inputs: 1
-  outputs: 3
+  inputs: 3
+  outputs: 2
 
   input-activation: "NONE"
-  hidden-activation: "RELU"
-  output-activation: "RELU"
-
-  graph:
-
+  hidden-activation: "NONE"
+  output-activation: "NONE"
 
   fill-with-default-value: false
   default-weight-value: 1
@@ -22,7 +19,7 @@ network:
       stylesheet: "graph.css"
 
   random:
-    use-seed: false
+    use-seed: true
     seed: 0
   weight-range: 2
   bias-range: 10
@@ -30,9 +27,9 @@ network:
     chance: 1
     amount: 1
     weights:
-      weight: 5
-      bias: 5
+      weight: 3
       add-node: 2
       remove-node: 1
-      add-connection: 2
-      remove-connection: 0.5
+      add-connection: 4
+      remove-connection: 1
+      bias: 3

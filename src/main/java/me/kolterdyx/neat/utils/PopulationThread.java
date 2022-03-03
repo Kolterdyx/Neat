@@ -1,9 +1,9 @@
 package me.kolterdyx.neat.utils;
 
 import me.kolterdyx.neat.Network;
-import me.kolterdyx.neat.utils.data.Configuration;
+import me.kolterdyx.utils.Configuration;
+import me.kolterdyx.utils.Experimental;
 import org.apache.commons.math3.util.Pair;
-import org.ejml.simple.SimpleMatrix;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -11,11 +11,12 @@ import java.util.HashMap;
 
 import static me.kolterdyx.neat.utils.Signal.*;
 
+@Experimental
 public class PopulationThread {
 
     private volatile HashMap<Long, Network> population;
-    private volatile HashMap<Long, SimpleMatrix> results;
-    private volatile HashMap<Long, SimpleMatrix> oldResults;
+    private volatile HashMap<Long, double[]> results;
+    private volatile HashMap<Long, double[]> oldResults;
     private volatile ArrayList<Long> idList;
     private volatile ArrayList<Long> availableChildren;
 
@@ -32,7 +33,7 @@ public class PopulationThread {
     private volatile ArrayList<Pair<Signal, Object>> inputQueue;
     private volatile boolean newDataAvailable;
 
-    private HashMap<Long, SimpleMatrix> input;
+    private HashMap<Long, double[]> input;
     private volatile String string;
 
     public PopulationThread(Configuration config, int initialPopulation){
@@ -50,7 +51,7 @@ public class PopulationThread {
 
         for (int i = 0; i < initialPopulation; i++) {
             long id = addNetwork(-1);
-            input.put(id, new SimpleMatrix(new double[1][config.getInt("network.inputs")]));
+            input.put(id, new double[config.getInt("network.inputs")]);
         }
 
         createString();
@@ -87,7 +88,7 @@ public class PopulationThread {
                         addChildNetwork(id);
                     }
                     case INPUT_DATA -> {
-                        input = (HashMap<Long, SimpleMatrix>) data;
+                        input = (HashMap<Long, double[]>) data;
                     }
                     case CLOSE -> {
 //                        System.out.println("Closing population thread");
@@ -108,7 +109,7 @@ public class PopulationThread {
         this.newDataAvailable = true;
     }
 
-    public HashMap<Long, SimpleMatrix> getResults(){
+    public HashMap<Long, double[]> getResults(){
         try {
             oldResults = results;
             return results;
@@ -131,12 +132,12 @@ public class PopulationThread {
         return null;
     }
 
-    private void feedAll(HashMap<Long, SimpleMatrix> data){
+    private void feedAll(HashMap<Long, double[]> data){
         if (data == null) return;
-        data.forEach((key, value) -> feed(key, value));
+        data.forEach(this::feed);
     }
 
-    private void feed(long key, SimpleMatrix value){
+    private void feed(long key, double[] value){
         results.put(key, population.get(key).feed(value));
     }
 

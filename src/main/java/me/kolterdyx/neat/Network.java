@@ -1,10 +1,8 @@
 package me.kolterdyx.neat;
 
 import com.google.gson.annotations.Expose;
-import me.kolterdyx.neat.utils.data.Configuration;
+import me.kolterdyx.utils.Configuration;
 import me.kolterdyx.neat.utils.neural.Serializer;
-import org.ejml.simple.SimpleMatrix;
-import org.graphstream.graph.Graph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,7 +39,7 @@ public class Network {
         return Serializer.deserialize(data);
     }
 
-    public SimpleMatrix feed(SimpleMatrix X){
+    public double[] feed(double[] X){
         return genome.feed(X);
     }
 
@@ -82,10 +80,6 @@ public class Network {
         return false;
     }
 
-    public void plotGraph() {
-        genome.plotGraph();
-    }
-
     @Override
     public String toString() {
         return ""+ genome;
@@ -114,9 +108,6 @@ public class Network {
         genome.createGraph();
     }
 
-    public Graph getGraph(){
-        return genome.getGraph();
-    }
 
     @Override
     public boolean equals(Object o){

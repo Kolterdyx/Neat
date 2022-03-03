@@ -1,10 +1,10 @@
 package me.kolterdyx.neat;
 
-import me.kolterdyx.neat.utils.data.Configuration;
-import org.ejml.simple.SimpleMatrix;
+import me.kolterdyx.utils.Configuration;
 import org.junit.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class NetworkTest {
 
@@ -21,18 +21,14 @@ public class NetworkTest {
         }
 
 
-        SimpleMatrix testInputData = new SimpleMatrix(new double[][]{
-                new double[] {2, 1, 3}
-        });
+        double[] testInputData = new double[] {2, 1, 3};
 
-        SimpleMatrix expectedOutput = new SimpleMatrix(new double[][]{
-                new double[] {1.00874, 1.95091}
-        });
+        double[] expectedOutput = new double[] {1.00874, 1.95091};
 
 
-        SimpleMatrix actualOutput = network.feed(testInputData);
+        double[] actualOutput = network.feed(testInputData);
 
-        assert actualOutput.isIdentical(expectedOutput, 0.00001);
+        assert Arrays.equals(actualOutput, expectedOutput);
     }
 
     @Test(expected = ArrayIndexOutOfBoundsException.class)
@@ -47,9 +43,7 @@ public class NetworkTest {
         }
 
 
-        SimpleMatrix testInputData = new SimpleMatrix(new double[][]{
-                new double[] {0, 1}
-        });
+        var testInputData = new double[] {0, 1};
 
         network.feed(testInputData);
     }
@@ -107,14 +101,12 @@ public class NetworkTest {
         originalNetwork.exportToFile("/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/network2.json");
         Network importedNetwork = Network.importFromFile("/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/network2.json");
 
-        SimpleMatrix testInputData = new SimpleMatrix(new double[][]{
-                new double[] {2, 1, 3}
-        });
+        double[] testInputData = new double[] {2, 1, 3};
 
-        SimpleMatrix expectedOutput = originalNetwork.feed(testInputData);
-        SimpleMatrix actualOutput = importedNetwork.feed(testInputData);
+        double[] expectedOutput = originalNetwork.feed(testInputData);
+        double[] actualOutput = importedNetwork.feed(testInputData);
 
-        assert expectedOutput.isIdentical(actualOutput, 0.00001);
+        assert Arrays.equals(expectedOutput, actualOutput);
 
     }
 

@@ -1,6 +1,6 @@
 package me.kolterdyx.neat;
 
-import me.kolterdyx.neat.utils.data.Configuration;
+import me.kolterdyx.utils.Configuration;
 import org.junit.Test;
 
 public class GenomeTest {

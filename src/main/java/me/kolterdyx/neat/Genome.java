@@ -4,24 +4,15 @@ import com.google.gson.annotations.Expose;
 import me.kolterdyx.neat.genome.Connection;
 import me.kolterdyx.neat.genome.Gene;
 import me.kolterdyx.neat.genome.Node;
-import me.kolterdyx.neat.utils.data.Configuration;
-import me.kolterdyx.neat.utils.Experimental;
+import me.kolterdyx.utils.Configuration;
 import me.kolterdyx.neat.utils.data.ActivationFunction;
 import me.kolterdyx.neat.utils.neural.GeneKey;
 import me.kolterdyx.neat.utils.neural.InnovationRegistry;
-import org.ejml.simple.SimpleMatrix;
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.swingViewer.Viewer;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Genome {
-
-    private transient SingleGraph graph;
 
     private Configuration config;
     @Expose
@@ -81,7 +72,7 @@ public class Genome {
     }
 
 
-    public SimpleMatrix feed(SimpleMatrix data){
+    public double[] feed(double[] data){
         if (data==null) return null;
         // Reset all nodes
         for (Node node : nodes.values()){
@@ -89,7 +80,7 @@ public class Genome {
         }
 
         for (int i=0; i<inputs; i++){
-            double value = data.get(i);
+            double value = data[i];
             Node node = nodes.get(inputNodeIDs[i]);
             node.addInputValue(value);
         }
@@ -105,9 +96,7 @@ public class Genome {
         }
 
 
-        return new SimpleMatrix(new double[][]{
-                values
-        });
+        return values;
     }
 
     private boolean recurrent(GeneKey con){
@@ -351,58 +340,6 @@ public class Genome {
         con.disable();
     }
 
-    Viewer viewer = null;
-
-
-    @Experimental
-    public void plotGraph(){
-
-        if (viewer == null) {
-            viewer = graph.display();
-//            viewer.getDefaultView().setSize(1280, 720);
-        }
-
-        for (Connection con : connections.values()){
-            int in = con.getInputNode();
-            int out = con.getOutputNode();
-            String inName = ""+in;
-            String outName = ""+out;
-            graph.addNode(inName);
-            graph.addNode(outName);
-            Edge e;
-            e = graph.addEdge("" + con.getInnovation(), inName, outName, true);
-//            if (!con.enabled() && config.getBoolean("network.graph.display-disabled-links") || con.enabled()) {
-//            } else return;
-//            if (e==null) return;
-            e.setAttribute("ui.style", "shape: blob;");
-            double width = Math.abs(con.getWeight()*3)+0.1f;
-            e.setAttribute("ui.style", "size: "+width+"px;");
-            if (con.getWeight() > 0){
-                e.setAttribute("ui.class", "positive");
-            } else{
-                e.setAttribute("ui.class", "negative");
-            }
-            if (!con.enabled()){
-                e.setAttribute("ui.class", "disabled");
-            }
-            if (con.enabled() && config.getBoolean("network.debug.graph.display-link-info")) e.setAttribute("ui.label", ""+con);
-            if (config.getBoolean("network.debug.graph.display-node-info")) graph.getNode(inName).setAttribute("ui" +
-                    ".label", ""+nodes.get(in));
-            if (config.getBoolean("network.debug.graph.display-node-info")) graph.getNode(outName).setAttribute("ui.label", ""+nodes.get(out));
-            if (Arrays.stream(inputNodeIDs).anyMatch(Integer.valueOf(in)::equals)){
-                graph.getNode(inName).setAttribute("ui.class", "input");
-            }else {
-                graph.getNode(inName).setAttribute("ui.class", "middle");
-            }
-
-            if (Arrays.stream(outputNodeIDs).anyMatch(Integer.valueOf(out)::equals)){
-                graph.getNode(outName).setAttribute("ui.class", "output");
-            }else{
-                graph.getNode(outName).setAttribute("ui.class", "middle");
-            }
-        }
-    }
-
     public HashMap<Integer, Node> getNodes() {
         return nodes;
     }
@@ -436,16 +373,6 @@ public class Genome {
             e.printStackTrace();
         }
 
-        // Create graph
-        graph = new SingleGraph("Network");
-        graph.setStrict(false);
-
-        graph.setAutoCreate(true);
-        System.setProperty("org.graphstream.ui", "swing");
-        graph.setAttribute("ui.stylesheet", graphStyle);
     }
 
-    public Graph getGraph(){
-        return graph;
-    }
 }
