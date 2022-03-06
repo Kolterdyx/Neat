@@ -16,7 +16,7 @@ public class InnovationRegistry {
         if (innovationCounter == 0){
             innovationCounter = config.getInt("network.inputs") + config.getInt("network.outputs");
             for (int i = 0; i < innovationCounter; i++) {
-                existingNodes.put(new GeneKey(-1, -1), i);
+                existingNodes.put(new GeneKey(-1, i), i);
             }
         }
     }
@@ -29,7 +29,7 @@ public class InnovationRegistry {
 
         GeneKey connection = new GeneKey(inNode, outNode);
         for (GeneKey i : existingConnections.keySet()) {
-            if (i.getIn() == connection.getIn() && i.getOut() == connection.getOut()) return existingConnections.get(i);
+            if (i.equals(connection)) return existingConnections.get(i);
         }
         int innovation = getInnovation();
         existingConnections.put(connection, innovation);
@@ -37,7 +37,7 @@ public class InnovationRegistry {
 
     }
     public static int getConnection(GeneKey conn)  {
-        return getConnection(conn.getIn(), conn.getOut());
+        return getConnection(conn.a(), conn.b());
     }
 
     // Check if a node already exists between two preexisting nodes, and if so, return that node's innovation number.
@@ -50,14 +50,14 @@ public class InnovationRegistry {
 
         GeneKey node = new GeneKey(prevNode, nextNode);
         for (GeneKey i : existingNodes.keySet()) {
-            if (i.getIn() == node.getIn() && i.getOut() == node.getOut()) return existingNodes.get(i);
+            if (i.equals(node)) return existingNodes.get(i);
         }
         int innovation = getInnovation();
         existingNodes.put(node, innovation);
         return innovation;
     }
     public static int getNode(GeneKey wrap) {
-        return getNode(wrap.getIn(), wrap.getOut());
+        return getNode(wrap.a(), wrap.b());
     }
 
     public static boolean nodeExists(int node){
@@ -66,7 +66,7 @@ public class InnovationRegistry {
 
     public static boolean nodeExists(GeneKey wrap){
         for (GeneKey i : existingNodes.keySet()) {
-            if (i.getIn() == wrap.getIn() && i.getOut() == wrap.getOut()) return true;
+            if (i.equals(wrap)) return true;
         }
         return false;
     }
@@ -77,7 +77,7 @@ public class InnovationRegistry {
 
     public static boolean connectionExists(GeneKey connection){
         for (GeneKey i : existingConnections.keySet()) {
-            if (i.getIn() == connection.getIn() && i.getOut() == connection.getOut()) return true;
+            if (i.equals(connection)) return true;
         }
         return false;
     }

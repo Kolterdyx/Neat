@@ -14,8 +14,9 @@ public class Connection extends Gene {
     private int outputNode;
     @Expose
     private boolean enabled;
-
+    @Expose
     private Node inputNodeInstance;
+    @Expose
     private Node outputNodeInstance;
 
     public Connection(Node inputNodeInstance, Node outputNodeInstance, Random random, double weightLimit){

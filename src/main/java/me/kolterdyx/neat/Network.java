@@ -3,7 +3,7 @@ package me.kolterdyx.neat;
 import com.google.gson.annotations.Expose;
 import me.kolterdyx.neat.genome.Genome;
 import me.kolterdyx.utils.Configuration;
-import me.kolterdyx.neat.utils.network.Serializer;
+import me.kolterdyx.neat.utils.data.Serializer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,21 +30,32 @@ public class Network {
             random.setSeed(config.getInt("network.random.seed"));
         }
 
-        int inputs = config.getInt("network.inputs");
-        int outputs = config.getInt("network.outputs");
-
-        genome = new Genome(inputs, outputs, config);
+        genome = new Genome(config);
     }
 
+    /**
+     * Creates a network from a serialized network string.
+     * @param data Serialized network.
+     * @return Network deserialized from the string.
+     */
     public static Network deserialize(String data) {
-        return Serializer.deserialize(data);
+        return Serializer._deserialize(data);
     }
 
+    /**
+     * Calculate network output given an input value array X.
+     * @param X Input values. The array must have the same length as the input node layer.
+     * @return Array of doubles containing output values. Same length as the output node layer.
+     */
     public double[] feed(double[] X){
-        return genome.feed(X);
+        return genome._feed(X);
     }
 
 
+    /**
+     * Attempts to mutate the network.
+     * @return boolean whether the network was successfully mutated or not.
+     */
     public boolean tryMutation(){
         if (random.nextDouble() < config.getDouble("network.mutation.chance")){
             final double[] totalWeight = {0f};
@@ -61,12 +72,12 @@ public class Network {
             Arrays.stream(weights).forEach(value -> totalWeight[0]+=value);
 
             Runnable[] options = new Runnable[]{
-                    genome::mutateWeight,
-                    genome::mutateBias,
-                    genome::addRandomNode,
-                    genome::removeRandomNode,
-                    genome::addRandomConnection,
-                    genome::removeRandomConnection,
+                    genome::_mutateWeight,
+                    genome::_mutateBias,
+                    genome::_addRandomNode,
+                    genome::_removeRandomNode,
+                    genome::_addRandomConnection,
+                    genome::_removeRandomConnection,
             };
 
             int choice = 0;
@@ -86,26 +97,26 @@ public class Network {
         return ""+ genome;
     }
 
+    /**
+     * Copies a network.
+     * @return an identical copy to this network.
+     */
     public Network copy() {
-        String data = Serializer.serialize(this);
-        try {
-            FileWriter file = new FileWriter("network.json");
-            file.write(data);
-            file.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return Serializer.deserialize(data);
+        String data = Serializer._serialize(this);
+        return Serializer._deserialize(data);
     }
 
-    public void postProcess() {
+    /**
+     * Method called by the serializer. Please avoid calling this method.
+     */
+    public void _postProcess() {
         random = new Random();
         if (config.getBoolean("network.random.use-seed")) {
             random.setSeed(config.getInt("network.random.seed"));
         }
 
-        genome.setConfig(config);
-        genome.setRandom(random);
+        genome._setConfig(config);
+        genome._setRandom(random);
     }
 
 
@@ -117,16 +128,31 @@ public class Network {
         return false;
     }
 
+    /**
+     * Serialize the network.
+     * @return String containing the serialized network. Can be written directly to a json file.
+     */
     public String serialize() {
-        return Serializer.serialize(this);
+        return Serializer._serialize(this);
     }
 
+    /**
+     * Serializes and writes the network to a json file.
+     * @param filename Output json file that will contain the network.
+     * @throws IOException
+     */
     public void exportToFile(String filename) throws IOException {
         FileWriter file = new FileWriter(filename);
         file.write(this.serialize());
         file.close();
     }
 
+    /**
+     * Reads a json file containing a network and deserializes it.
+     * @param filename Json file containing a network.
+     * @return Network produced from the file
+     * @throws FileNotFoundException
+     */
     public static Network importFromFile(String filename) throws FileNotFoundException {
         File file = new File(filename);
         Scanner scanner = new Scanner(file);
@@ -137,13 +163,13 @@ public class Network {
         return deserialize(data);
     }
 
-    public Genome getGenome() {
+    public Genome _getGenome() {
         return genome;
     }
 
-    public void setGenome(Genome genome){
+    public void _setGenome(Genome genome){
         this.genome = genome;
-        genome.setConfig(this.config);
-        genome.setRandom(this.random);
+        genome._setConfig(this.config);
+        genome._setRandom(this.random);
     }
 }

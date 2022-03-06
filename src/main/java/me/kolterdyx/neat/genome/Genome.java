@@ -12,20 +12,20 @@ public class Genome {
 
     private Configuration config;
     @Expose
-    private HashMap<Integer, Node> nodes = new HashMap<>();
+    private final HashMap<Integer, Node> nodes = new HashMap<>();
     @Expose
-    private HashMap<Integer, Connection> connections = new HashMap<>();
+    private final HashMap<Integer, Connection> connections = new HashMap<>();
     @Expose
-    private int inputs;
+    private final int inputs;
     @Expose
-    private int outputs;
+    private final int outputs;
 
     private transient Random random;
 
     @Expose
-    private int[] inputNodeIDs;
+    private final int[] inputNodeIDs;
     @Expose
-    private int[] outputNodeIDs;
+    private final int[] outputNodeIDs;
 
     public Genome(Configuration config){
         this.config = config;
@@ -45,27 +45,22 @@ public class Genome {
         for (int i = 0; i < inputs; i++) {
             Node node = new Node(Node.INPUT, i, ActivationFunction.fromName(config.getString("network.input-activation")), random, config.getDouble("network.bias-range"));
             inputNodeIDs[i] = node.getInnovation();
-            registerGene(node);
+            _registerGene(node);
         }
 
         // Output nodes
         for (int i = 0; i < outputs; i++) {
             Node node = new Node(Node.OUTPUT, inputs+i, ActivationFunction.fromName(config.getString("network.output-activation")), random, config.getDouble("network.bias-range"));
             outputNodeIDs[i] = node.getInnovation();
-            registerGene(node);
+            _registerGene(node);
         }
     }
 
-    @Deprecated
-    public Genome(int inputs, int outputs, Configuration config){
-        this(config);
-    }
-
-    public void setConfig(Configuration config){
+    public void _setConfig(Configuration config){
         this.config = config;
     }
 
-    public double[] feed(double[] data){
+    public double[] _feed(double[] data){
         if (data==null) return null;
 
         if (data.length != inputs) {
@@ -98,8 +93,8 @@ public class Genome {
     }
 
     private boolean recurrent(GeneKey con){
-        int inputNodeInn = con.getIn();
-        int outputNodeInn = con.getOut();
+        int inputNodeInn = con.a();
+        int outputNodeInn = con.b();
         if (!nodes.containsKey(inputNodeInn) || !nodes.containsKey(outputNodeInn)) return false;
 
         if (inputNodeInn==outputNodeInn) return true;
@@ -169,19 +164,19 @@ public class Genome {
         return node.getOutput();
     }
 
-    public void registerGene(Gene gene) {
+    public void _registerGene(Gene gene) {
         if (gene instanceof Node node){
             if (nodes.containsKey(node.getInnovation())) return;
             nodes.put(node.getInnovation(), node);
         } else if (gene instanceof Connection con){
             if (connections.containsKey(con.getInnovation())) return;
             connections.put(con.getInnovation(), con);
-            registerGene(con.getInputNodeInstance());
-            registerGene(con.getOutputNodeInstance());
+            _registerGene(con.getInputNodeInstance());
+            _registerGene(con.getOutputNodeInstance());
         }
     }
 
-    public boolean addNode(int prevNode, int nextNode){
+    public boolean _addNode(int prevNode, int nextNode){
         GeneKey conKey = new GeneKey(prevNode, nextNode);
         if (recurrent(conKey)) return false;
         // Disable existing connection between the wrapping nodes if it exists
@@ -202,15 +197,15 @@ public class Genome {
 
         // We create a new node with an innovation number.
         Node node = new Node(Node.HIDDEN, InnovationRegistry.getNode(prevNode, nextNode), ActivationFunction.fromName(config.getString("network.hidden-activation")), random, config.getDouble("network.bias-range"));
-        registerGene(node);
+        _registerGene(node);
         // We create two connections surrounding the node and connecting it to the previous and next nodes.
-        addConnection(prevNode, node.getInnovation());
-        addConnection(node.getInnovation(), nextNode);
+        _addConnection(prevNode, node.getInnovation());
+        _addConnection(node.getInnovation(), nextNode);
 
         return true;
     }
 
-    public boolean addConnection(int inputNode, int outputNode) {
+    public boolean _addConnection(int inputNode, int outputNode) {
 
         // the wrapping nodes must exist
         if (!nodes.containsKey(inputNode) || !nodes.containsKey(outputNode)) return false;
@@ -234,32 +229,31 @@ public class Genome {
 
 
         nodes.get(outputNode).addIncomingConnection(con.getInnovation());
-        registerGene(con);
+        _registerGene(con);
 
         return true;
     }
 
-    public void removeNode(int node) {
-//        throw new NotImplementedException();
+    public void _removeNode(int node) {
         // TODO: remove nodes
     }
 
-    public void mutateWeight() {
+    public void _mutateWeight() {
         if (connections.size()==0) return;
         Connection con = (Connection) connections.values().toArray()[random.nextInt(connections.size())];
         double weightLimit = config.getDouble("network.weight-range");
         con.setWeight(con.getWeight()+random.nextDouble(weightLimit*2)-weightLimit);
     }
 
-    public void mutateBias(){
+    public void _mutateBias(){
         Node node = (Node) nodes.values().toArray()[random.nextInt(nodes.size())];
         double biasLimit = config.getDouble("network.bias-range");
         node.setBias(node.getBias()+random.nextDouble(biasLimit*2)-biasLimit);
     }
 
-    public void addRandomNode() {
+    public void _addRandomNode() {
         if (connections.size() == 0){
-            addRandomConnection();
+            _addRandomConnection();
         }
 
         Connection connectionToSplit = (Connection) connections.values().toArray()[random.nextInt(connections.size())];
@@ -272,22 +266,22 @@ public class Genome {
             }
             connectionToSplit = (Connection) connections.values().toArray()[random.nextInt(connections.size())];
         }
-        addNode(connectionToSplit.getInputNode(), connectionToSplit.getOutputNode());
+        _addNode(connectionToSplit.getInputNode(), connectionToSplit.getOutputNode());
 
     }
 
-    public void removeRandomNode() {
+    public void _removeRandomNode() {
         Node node = (Node) nodes.values().toArray()[random.nextInt(nodes.size())];
-        removeNode(node.getInnovation());
+        _removeNode(node.getInnovation());
     }
 
-    public void addRandomConnection() {
+    public void _addRandomConnection() {
         int inNode = -1;
         int outNode = -1;
         if (nodes.size() == inputs+outputs){
             inNode = inputNodeIDs[random.nextInt(inputs)];
             outNode = outputNodeIDs[random.nextInt(outputs)];
-            addConnection(inNode, outNode);
+            _addConnection(inNode, outNode);
         } else {
 
             // Choose inNode
@@ -325,11 +319,11 @@ public class Genome {
                 // output as outNode
                 outNode = outputNodeIDs[random.nextInt(outputs)];
             }
-            addConnection(inNode, outNode);
+            _addConnection(inNode, outNode);
         }
     }
 
-    public void removeRandomConnection() {
+    public void _removeRandomConnection() {
         if (connections.size() == 0) return;
         ArrayList<Connection> cons = new ArrayList<>();
         for (Connection con : connections.values()){
@@ -340,30 +334,14 @@ public class Genome {
         con.disable();
     }
 
-    public HashMap<Integer, Node> getNodes() {
-        return nodes;
-    }
-
-    public ArrayList<Connection> getConnections() {
+    public ArrayList<Connection> _getConnections() {
         ArrayList<Connection> conList = new ArrayList<>(connections.values());
         Collections.sort(conList);
         return conList;
     }
 
-    public void setRandom(Random r){
+    public void _setRandom(Random r){
         this.random = r;
-    }
-
-    public ArrayList<Gene> getGenes(){
-        ArrayList<Gene> genes = new ArrayList<>();
-        genes.addAll(connections.values());
-        genes.addAll(nodes.values());
-        Collections.sort(genes);
-        return genes;
-    }
-
-    public void setGenes(ArrayList<Gene> genes){
-        genes.forEach(this::registerGene);
     }
 
     @Override
