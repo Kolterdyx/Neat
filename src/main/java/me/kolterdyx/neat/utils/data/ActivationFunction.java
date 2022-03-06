@@ -12,7 +12,8 @@ public enum ActivationFunction {
     SIGMOID,
     RELU,
     STEP,
-    TANH, SOFT_TANH;
+    TANH,
+    SOFT_TANH;
 
     private static Map<String, ActivationFunction> MAP = Stream.of(ActivationFunction.values()).collect(Collectors.toMap(Enum::name, Function.identity()));
 
@@ -21,17 +22,14 @@ public enum ActivationFunction {
     }
 
     public double calculate(double x){
-        switch (this){
-            case SIGMOID: return 1/(1+Math.pow(Math.E, -x));
-            case RELU: return x > 0 ? x : 0;
-            case STEP: return x > 0 ? 1 : 0;
-            case NONE:
-            case LINEAR:
-                return x;
-            case TANH: return (Math.pow(Math.E, x)-Math.pow(Math.E, -x))/(Math.pow(Math.E, x)+Math.pow(Math.E, -x));
-            case SOFT_TANH: return TANH.calculate(x/5);
-        }
-        return 0d;
+        return switch (this) {
+            case SIGMOID -> 1 / (1 + Math.pow(Math.E, -x));
+            case RELU -> x > 0 ? x : 0;
+            case STEP -> x > 0 ? 1 : 0;
+            case NONE, LINEAR -> x;
+            case TANH -> (Math.pow(Math.E, x) - Math.pow(Math.E, -x)) / (Math.pow(Math.E, x) + Math.pow(Math.E, -x));
+            case SOFT_TANH -> TANH.calculate(x / 5);
+        };
     }
 
 //    public SimpleMatrix calculateMatrix(SimpleMatrix matrix){

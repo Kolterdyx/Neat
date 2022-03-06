@@ -1,7 +1,7 @@
 package me.kolterdyx.neat.genome;
 
 import com.google.gson.annotations.Expose;
-import me.kolterdyx.neat.utils.neural.InnovationRegistry;
+import me.kolterdyx.neat.utils.network.InnovationRegistry;
 
 import java.util.Random;
 
@@ -15,11 +15,18 @@ public class Connection extends Gene {
     @Expose
     private boolean enabled;
 
-    public Connection(int inputNode, int outputNode, Random random, double weightLimit){
+    private Node inputNodeInstance;
+    private Node outputNodeInstance;
+
+    public Connection(Node inputNodeInstance, Node outputNodeInstance, Random random, double weightLimit){
         GENE_TYPE = Gene.CONNECTION;
+        this.inputNode = inputNodeInstance.getInnovation();
+        this.outputNode = outputNodeInstance.getInnovation();
         this.innovation = InnovationRegistry.getConnection(inputNode, outputNode);
-        this.inputNode = inputNode;
-        this.outputNode = outputNode;
+
+        this.inputNodeInstance = inputNodeInstance;
+        this.outputNodeInstance = outputNodeInstance;
+
         this.weight = Double.parseDouble(String.format("%.5f", (random.nextDouble()-.5f)*2*weightLimit).replace(',', '.'));
         enable();
     }
@@ -55,5 +62,13 @@ public class Connection extends Gene {
 
     public void setWeight(double weight) {
         this.weight = weight;
+    }
+
+    public Node getInputNodeInstance() {
+        return inputNodeInstance;
+    }
+
+    public Node getOutputNodeInstance() {
+        return outputNodeInstance;
     }
 }

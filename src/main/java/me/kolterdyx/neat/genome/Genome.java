@@ -1,15 +1,11 @@
-package me.kolterdyx.neat;
+package me.kolterdyx.neat.genome;
 
 import com.google.gson.annotations.Expose;
-import me.kolterdyx.neat.genome.Connection;
-import me.kolterdyx.neat.genome.Gene;
-import me.kolterdyx.neat.genome.Node;
 import me.kolterdyx.utils.Configuration;
 import me.kolterdyx.neat.utils.data.ActivationFunction;
-import me.kolterdyx.neat.utils.neural.GeneKey;
-import me.kolterdyx.neat.utils.neural.InnovationRegistry;
-import java.io.File;
-import java.io.FileNotFoundException;
+import me.kolterdyx.neat.utils.network.GeneKey;
+import me.kolterdyx.neat.utils.network.InnovationRegistry;
+
 import java.util.*;
 
 public class Genome {
@@ -30,15 +26,12 @@ public class Genome {
     private int[] inputNodeIDs;
     @Expose
     private int[] outputNodeIDs;
-    private String graphStyle = "";
 
-    public Genome(int inputs, int outputs, Configuration config){
-
-        this.inputs = inputs;
-        this.outputs = outputs;
+    public Genome(Configuration config){
         this.config = config;
 
-
+        this.inputs = config.getInt("network.inputs");
+        this.outputs = config.getInt("network.outputs");
 
         random = new Random();
         if (config.getBoolean("network.random.use-seed")) {
@@ -50,30 +43,35 @@ public class Genome {
 
         // Input nodes
         for (int i = 0; i < inputs; i++) {
-            Node node = new Node(Node.INPUT, InnovationRegistry.getOuterNode(), ActivationFunction.fromName(config.getString("network.input-activation")), random, config.getDouble("network.bias-range"));
+            Node node = new Node(Node.INPUT, i, ActivationFunction.fromName(config.getString("network.input-activation")), random, config.getDouble("network.bias-range"));
             inputNodeIDs[i] = node.getInnovation();
             registerGene(node);
         }
 
         // Output nodes
         for (int i = 0; i < outputs; i++) {
-            Node node = new Node(Node.OUTPUT, InnovationRegistry.getOuterNode(), ActivationFunction.fromName(config.getString("network.output-activation")), random, config.getDouble("network.bias-range"));
+            Node node = new Node(Node.OUTPUT, inputs+i, ActivationFunction.fromName(config.getString("network.output-activation")), random, config.getDouble("network.bias-range"));
             outputNodeIDs[i] = node.getInnovation();
             registerGene(node);
         }
+    }
 
-
-        createGraph();
-
+    @Deprecated
+    public Genome(int inputs, int outputs, Configuration config){
+        this(config);
     }
 
     public void setConfig(Configuration config){
         this.config = config;
     }
 
-
     public double[] feed(double[] data){
         if (data==null) return null;
+
+        if (data.length != inputs) {
+            throw new IllegalArgumentException("Input data array has a different length ("+data.length+") than expected "+inputs);
+        }
+
         // Reset all nodes
         for (Node node : nodes.values()){
             node.reset();
@@ -136,7 +134,6 @@ public class Genome {
         }
     }
 
-
     private double calculateNode(Node node){
 
         if (node.hasBeenProcessed()) return node.getOutput();
@@ -172,15 +169,17 @@ public class Genome {
         return node.getOutput();
     }
 
-
-    private void registerGene(Gene gene) {
+    public void registerGene(Gene gene) {
         if (gene instanceof Node node){
+            if (nodes.containsKey(node.getInnovation())) return;
             nodes.put(node.getInnovation(), node);
         } else if (gene instanceof Connection con){
+            if (connections.containsKey(con.getInnovation())) return;
             connections.put(con.getInnovation(), con);
+            registerGene(con.getInputNodeInstance());
+            registerGene(con.getOutputNodeInstance());
         }
     }
-
 
     public boolean addNode(int prevNode, int nextNode){
         GeneKey conKey = new GeneKey(prevNode, nextNode);
@@ -231,13 +230,18 @@ public class Genome {
             }
         }
 
-        Connection con = new Connection(inputNode, outputNode, random, config.getDouble("network.weight-range"));
+        Connection con = new Connection(nodes.get(inputNode), nodes.get(outputNode), random, config.getDouble("network.weight-range"));
 
 
         nodes.get(outputNode).addIncomingConnection(con.getInnovation());
         registerGene(con);
 
         return true;
+    }
+
+    public void removeNode(int node) {
+//        throw new NotImplementedException();
+        // TODO: remove nodes
     }
 
     public void mutateWeight() {
@@ -270,10 +274,6 @@ public class Genome {
         }
         addNode(connectionToSplit.getInputNode(), connectionToSplit.getOutputNode());
 
-    }
-
-    public void removeNode(int node) {
-//        throw new NotImplementedException();
     }
 
     public void removeRandomNode() {
@@ -344,12 +344,26 @@ public class Genome {
         return nodes;
     }
 
-    public HashMap<Integer, Connection> getConnections() {
-        return connections;
+    public ArrayList<Connection> getConnections() {
+        ArrayList<Connection> conList = new ArrayList<>(connections.values());
+        Collections.sort(conList);
+        return conList;
     }
 
     public void setRandom(Random r){
         this.random = r;
+    }
+
+    public ArrayList<Gene> getGenes(){
+        ArrayList<Gene> genes = new ArrayList<>();
+        genes.addAll(connections.values());
+        genes.addAll(nodes.values());
+        Collections.sort(genes);
+        return genes;
+    }
+
+    public void setGenes(ArrayList<Gene> genes){
+        genes.forEach(this::registerGene);
     }
 
     @Override
@@ -357,22 +371,5 @@ public class Genome {
         return "\n -|"+nodes+"\n -|"+connections+"\n";
     }
 
-    void createGraph() {
-
-        // Try to find and load stylesheet
-
-        File path = new File(config.getString("network.debug.graph.stylesheet"));
-        graphStyle="";
-        try {
-            Scanner scanner = new Scanner(path);
-            while (scanner.hasNextLine()){
-                String line = scanner.nextLine();
-                graphStyle = graphStyle + line +"\n";
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-    }
 
 }

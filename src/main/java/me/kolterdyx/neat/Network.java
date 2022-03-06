@@ -1,8 +1,9 @@
 package me.kolterdyx.neat;
 
 import com.google.gson.annotations.Expose;
+import me.kolterdyx.neat.genome.Genome;
 import me.kolterdyx.utils.Configuration;
-import me.kolterdyx.neat.utils.neural.Serializer;
+import me.kolterdyx.neat.utils.network.Serializer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -105,7 +106,6 @@ public class Network {
 
         genome.setConfig(config);
         genome.setRandom(random);
-        genome.createGraph();
     }
 
 
@@ -137,4 +137,13 @@ public class Network {
         return deserialize(data);
     }
 
+    public Genome getGenome() {
+        return genome;
+    }
+
+    public void setGenome(Genome genome){
+        this.genome = genome;
+        genome.setConfig(this.config);
+        genome.setRandom(this.random);
+    }
 }

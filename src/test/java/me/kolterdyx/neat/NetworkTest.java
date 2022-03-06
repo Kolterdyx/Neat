@@ -12,7 +12,7 @@ public class NetworkTest {
     public void testFeedGoodInputToDevelopedNetwork(){
 
         // Configuration has 3 inputs and two outputs
-        Configuration config = new Configuration("/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/config.yml");
+        Configuration config = new Configuration("/home/kolterdyx/IdeaProjects/Neat/src/test/resources/config.yml");
 
         Network network = new Network(config);
 
@@ -31,10 +31,10 @@ public class NetworkTest {
         assert Arrays.equals(actualOutput, expectedOutput);
     }
 
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testFeedBadInputToDevelopedNetwork(){
         // Configuration has 3 inputs and two outputs
-        Configuration config = new Configuration("/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/config.yml");
+        Configuration config = new Configuration("/home/kolterdyx/IdeaProjects/Neat/src/test/resources/config.yml");
 
         Network network = new Network(config);
 
@@ -50,7 +50,7 @@ public class NetworkTest {
 
     @Test
     public void testCopyNetworkAndModify(){
-        Configuration config = new Configuration("/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/config.yml");
+        Configuration config = new Configuration("/home/kolterdyx/IdeaProjects/Neat/src/test/resources/config.yml");
 
         Network network1 = new Network(config);
 
@@ -71,12 +71,12 @@ public class NetworkTest {
 
     @Test
     public void testImportNetworkFromFile() throws IOException {
-        Network.importFromFile("/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/network.json");
+        Network.importFromFile("/home/kolterdyx/IdeaProjects/Neat/src/test/resources/network.json");
     }
 
     @Test
     public void testExportNetworkToFile() throws IOException {
-        Configuration config = new Configuration("/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/config.yml");
+        Configuration config = new Configuration("/home/kolterdyx/IdeaProjects/Neat/src/test/resources/config.yml");
 
         Network network = new Network(config);
 
@@ -84,13 +84,13 @@ public class NetworkTest {
             network.tryMutation();
         }
 
-        network.exportToFile("/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/network.json");
+        network.exportToFile("/home/kolterdyx/IdeaProjects/Neat/src/test/resources/network.json");
     }
 
     @Test
     public void testNetworkGivesTheSameOutputAfterExportingAndImportingFromFile() throws IOException {
         // Configuration has 3 inputs and two outputs
-        Configuration config = new Configuration("/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/config.yml");
+        Configuration config = new Configuration("/home/kolterdyx/IdeaProjects/Neat/src/test/resources/config.yml");
 
         Network originalNetwork = new Network(config);
 
@@ -98,8 +98,8 @@ public class NetworkTest {
             originalNetwork.tryMutation();
         }
 
-        originalNetwork.exportToFile("/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/network2.json");
-        Network importedNetwork = Network.importFromFile("/home/kolterdyx/Almacenamiento/Ciro/Projects/Neat/src/test/resources/network2.json");
+        originalNetwork.exportToFile("/home/kolterdyx/IdeaProjects/Neat/src/test/resources/network2.json");
+        Network importedNetwork = Network.importFromFile("/home/kolterdyx/IdeaProjects/Neat/src/test/resources/network2.json");
 
         double[] testInputData = new double[] {2, 1, 3};
 

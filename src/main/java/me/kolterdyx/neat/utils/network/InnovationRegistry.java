@@ -1,4 +1,6 @@
-package me.kolterdyx.neat.utils.neural;
+package me.kolterdyx.neat.utils.network;
+
+import me.kolterdyx.utils.Configuration;
 
 import java.util.HashMap;
 
@@ -7,6 +9,17 @@ public class InnovationRegistry {
 
     private static HashMap<GeneKey, Integer> existingConnections= new HashMap<>();
     private static HashMap<GeneKey, Integer> existingNodes = new HashMap<>();
+    private static Configuration config;
+
+    public static void setConfig(Configuration config){
+        InnovationRegistry.config = config;
+        if (innovationCounter == 0){
+            innovationCounter = config.getInt("network.inputs") + config.getInt("network.outputs");
+            for (int i = 0; i < innovationCounter; i++) {
+                existingNodes.put(new GeneKey(-1, -1), i);
+            }
+        }
+    }
 
     public static Integer getConnection(int inNode, int outNode) {
 
@@ -45,14 +58,6 @@ public class InnovationRegistry {
     }
     public static int getNode(GeneKey wrap) {
         return getNode(wrap.getIn(), wrap.getOut());
-    }
-
-
-    public static int getOuterNode(){
-        GeneKey wrap = new GeneKey(-1, -1);
-        int innovation = getInnovation();
-        existingNodes.put(wrap, innovation);
-        return innovation;
     }
 
     public static boolean nodeExists(int node){

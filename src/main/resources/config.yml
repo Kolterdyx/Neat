@@ -6,8 +6,10 @@ network:
   hidden-activation: "RELU"
   output-activation: "RELU"
 
-  graph:
-
+  speciation:
+    c1: 1
+    c2: 1
+    c3: 1
 
   fill-with-default-value: false
   default-weight-value: 1
