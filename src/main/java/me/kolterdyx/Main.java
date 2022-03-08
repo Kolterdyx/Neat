@@ -24,13 +24,6 @@ public class Main {
         }
 
         Network c = Species.crossover(a, b);
-        Network d = Species.crossover(a, b);
-
-//        System.out.println(a.serialize());
-//        System.out.println(b.serialize());
-//        System.out.println(c.serialize());
-//        System.out.println(d.serialize());
-
-
+        Network d = Species.crossover(b, a);
     }
 }
